@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.navbar__img-world{
+    height: 100px;
+}
+
+.search{
+    justify-content: space-between;
+    padding: 0 10%;
+}
+
+.container{
+    gap: 30px;
+    justify-content: center;
+}
+
+.card:hover{
+    transform: scale(1.05);
+    transition: .5s all;
+    opacity: 0.9;
+}
+
+.card-img-top{
+    height: 200px;
+}
+
+.modal-img{
+    height: 250px;
+    width: 430px;
+}
+
+.hiddeModal{
+    transform: translateX(-100%);
+}
