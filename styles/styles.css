@@ -28,11 +28,7 @@
     height: 200px;
 }
 
-.modal-img{
-    height: 250px;
-    width: 430px;
-}
 
-.hiddeModal{
-    transform: translateX(-100%);
+.fa-bookmark{
+    font-size: 28px;
 }

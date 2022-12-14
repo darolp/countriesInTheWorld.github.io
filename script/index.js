@@ -1,8 +1,9 @@
-
 //ellements in the DOM
 const search = document.getElementById("search");
 const filter = document.getElementById("filter");
 const modal = document.getElementById("window");
+const favorites = JSON.parse(localStorage.getItem("favorites")) || new Array();
+const refresh = document.getElementById("refresh");
 
 //call to api
 async function getData() {
@@ -10,20 +11,36 @@ async function getData() {
     const data = await resp.json();
     return data;
 }
+
+
+
 //filter by region
 filter.addEventListener("change", async () => {
+    search.value ="";
     const countries = await getData();
-    const filterList = countries.filter(element => element.region == filter.value);
+    const filterList = filter.value == "favorites" ? favorites : countries.filter(element => element.region == filter.value);
     print(filterList, 250);
-})
+});
+
+refresh.addEventListener("click", async () => {
+    search.value ="";
+    const countries = await getData();
+    if(!filter.value == ""){
+        const filterList = filter.value == "favorites" ? favorites : countries.filter(element => element.region == filter.value);
+        print(filterList, 250);
+    }
+});
+
 //filter by search
 search.addEventListener("input", async (e) => {
+    filter.value = "";
     const countries = await getData();
     const searchLists = countries.filter(element => element.name.common.toLowerCase().includes(e.target.value.toLowerCase()));
     print(searchLists, 10);
 })
+
 //print ellements to DOM, items determines the number of items to display
-async function print(data, items) {
+async function print(data, items){
     const infoCountry = await data;
     const container = document.getElementById("container");
     let acumulator = "";
@@ -37,13 +54,17 @@ async function print(data, items) {
                 <p class="card-text"><b>Population:</b> ${infoCountry[i].population}</p>
                 <p class="card-text"><b>Region:</b> ${infoCountry[i].region}</p>
                 <p class="card-text"><b>Capital:</b> ${infoCountry[i].capital}</p>
+                <div class="d-flex justify-content-between align-items-center">
                 <button type="button" id="${infoCountry[i].name.common}" data-bs-toggle="modal" onclick="filterByName(this, getData())" data-bs-target="#infoModal" class="btn btn-primary">Show more info</button>
+                <i class="${favorites.find(e => e.name.common == infoCountry[i].name.common) ? "fa-solid fa-bookmark" : "fa-regular fa-bookmark" }" id="${infoCountry[i].name.common}" onclick="favorite(this, getData())"></i>
+                </div>
             </div>
         </div>
         `
     }
-    container.innerHTML = acumulator;
+    container.innerHTML = acumulator == "" ? "NOT FOUND ANY COUNTRY" : acumulator;
 }
+
 //filter by name country selected
 async function filterByName(country, data) {
     const array = await data;
@@ -51,6 +72,36 @@ async function filterByName(country, data) {
     const countryTarget = array.find(element => element.name.common == countryName);
     
     showInfo(countryTarget);
+}
+
+async function favorite(country, data){
+    const array = await data;
+    const countryName = country.id;
+    const countryTarget = array.find(element => element.name.common == countryName);
+
+    if(country.className == "fa-regular fa-bookmark"){
+        country.className = "fa-solid fa-bookmark";
+        favorites.push(countryTarget);
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        Toastify({
+            text: `${countryTarget.name.common} was added to Favorites`,
+            style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+            }
+        }).showToast();
+    }else{
+        country.className = "fa-regular fa-bookmark";
+        favorites.forEach((element, index) => {
+            element.name.common == countryName ? favorites.splice(index,1) : "";
+        })
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        Toastify({
+            text: `${countryTarget.name.common} was delete to Favorites`,
+            style: {
+            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+            }
+        }).showToast();
+    }
 }
 
 
